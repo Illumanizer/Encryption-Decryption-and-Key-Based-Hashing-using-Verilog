@@ -6,11 +6,16 @@ module tb_decrypt;
 
   decrypt DUT(.din(cin), .dout(pout));
 
+  integer fail_count = 0;
+
   task check(input [7:0] e_in, input [7:0] exp_p);
     begin
       cin = e_in; #1;
       assert (pout === exp_p)
-        else $fatal(1, "decrypt mismatch: input=%02h output=%02h expexted=%02h @time=%0t",e_in, pout, exp_p, $time);
+        else begin
+           $error( "decrypt mismatch: input=%02h output=%02h expexted=%02h @time=%0t",e_in, pout, exp_p, $time);
+           fail_count = fail_count + 1;
+        end
       $display("  %02h  ->  %02h :  PASSED", e_in, pout);
       #5;
     end
@@ -25,7 +30,10 @@ module tb_decrypt;
     check(8'h3A, 8'hA5);
     check(8'h3B, 8'hFF);
 
-    $display("tb_decrypt OK");
+    if(fail_count==0)
+      $display("tb_decrypt OK");
+    else
+      $display("tb_decrypt FAILED count=%0d", fail_count);
     $finish;
   end
 endmodule

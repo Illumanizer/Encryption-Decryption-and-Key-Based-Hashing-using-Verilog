@@ -18,6 +18,8 @@ module tb_verify;
     .enc_match (enc_match)
   );
 
+  integer fail_count = 0;
+
   task check(input [7:0] enc_given,input [7:0] expected_plain,input [7:0] expected_hash);
     begin
       enc_in   = enc_given;
@@ -26,15 +28,22 @@ module tb_verify;
       #1;
 
       assert (valid_flag)
-        else $fatal(1, "Decryption check FAILED: enc=%02h plain=%02h got=%02h",
-                         enc_given, expected_plain,enc_in);
+        else begin
+           $error( "Decryption check FAILED: enc=%02h plain=%02h got=%02h",enc_given, expected_plain,enc_in);
+            fail_count = fail_count + 1;
+        end      
 
       assert (enc_match)
-        else $fatal(1, "Re-encryption check FAILED: dec->enc != %02h", enc_given);
+        else begin
+          $error( "Re-encryption check FAILED: dec->enc != %02h", enc_given);
+          fail_count = fail_count + 1;
+        end
 
       assert (hash_match)
-        else $fatal(1, "Hash check FAILED: enc=%02h got=%02h",
-                         enc_given, expected_hash);
+        else begin
+           $error( "Hash check FAILED: enc=%02h got=%02h",enc_given, expected_hash);
+           fail_count = fail_count + 1;
+        end
 
        $display("PASS case: enc=%02h plain=%02h hash=%02h got=%02h",
                 enc_given, expected_plain, expected_hash,DUT.h);
@@ -52,7 +61,10 @@ module tb_verify;
     check(8'h3A, 8'hA5, 8'h80);
     check(8'h3B, 8'hFF, 8'h84);
 
-    $display("tb_verify OK");
+    if(fail_count==0)
+      $display("tb_verify OK");
+    else
+      $display("tb_verify FAILED count=%0d", fail_count);
     $finish;
   end
 endmodule

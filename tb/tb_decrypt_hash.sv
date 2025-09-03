@@ -7,15 +7,23 @@ module tb_decrypt_hash;
   decrypt UDEC (.din(e), .dout(d));
   hash    UH   (.enc(e), .h(h));
 
+  integer fail_count = 0;
+
   task check; input [7:0] e_in, exp_p, exp_h;
     begin
       e = e_in; #1;
 
       assert (d === exp_p)
-        else $fatal(1, "decrypt mismatch: input=%02h output=%02h expected=%02h @time=%0t",e_in, d, exp_p, $time);
+        else begin 
+          $error("decrypt mismatch: input=%02h output=%02h expected=%02h @time=%0t",e_in, d, exp_p, $time);
+          fail_count = fail_count + 1;
+        end
 
       assert (h === exp_h)
-        else $fatal(1, "hash mismatch: input=%02h hash=%02h expected=%02h @time=%0t",e_in, h, exp_h, $time);
+        else begin
+           $error( "hash mismatch: input=%02h hash=%02h expected=%02h @time=%0t",e_in, h, exp_h, $time);
+           fail_count = fail_count + 1;
+        end
 
       $display("PASS dec+hash: input=%02h decrypted=%02h hash=%02h", e, d, h);
       #5;
@@ -30,7 +38,10 @@ module tb_decrypt_hash;
     check(8'h3A, 8'hA5, 8'h80);
     check(8'h3B, 8'hFF, 8'h84);
 
-    $display("tb_decrypt_hash OK");
+    if(fail_count == 0)
+      $display("tb_decrypt_hash OK");
+    else
+      $display("tb_decrypt_hash FAILED count=%0d", fail_count);
     $finish;
   end
 endmodule
