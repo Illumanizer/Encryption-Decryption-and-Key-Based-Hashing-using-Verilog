@@ -29,13 +29,12 @@ module tb_verify_rand;
   encrypt GENC (.din(dec_gold), .dout(reenc_gold));
   hash    GHASH(.enc(enc_in),  .h(hash_gold));
 
-  // --------------------------
-  // Task: run one random trial
-  // --------------------------
+
   task automatic run_random_case;
     begin
       enc_in = $urandom_range(0, 255); // random ciphertext
-
+      #2;
+      
       plain    = dec_gold;
       ref_hash = hash_gold;
       #1; 
@@ -54,8 +53,10 @@ module tb_verify_rand;
     end
   endtask
 
-  initial begin
-    repeat (10) begin
+  initial 
+  begin
+    repeat (10) 
+    begin
       run_random_case();
       #5;
     end
