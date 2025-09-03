@@ -3,7 +3,7 @@ input logic [7:0] din,
 output logic [7:0] dout
 );
 
-wire[7:0] s, p, h;
+logic[7:0] s, p, h;
 
 
 compute_sbox enc_sbox(.x(din), .y(s));

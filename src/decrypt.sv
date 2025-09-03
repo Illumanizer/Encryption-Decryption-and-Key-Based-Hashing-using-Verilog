@@ -3,7 +3,7 @@ module decrypt(
   output logic [7:0] dout
 );
 
-  wire [7:0] a,b,y_inv;
+  logic [7:0] a,b,y_inv;
 
   round_key dec_RoundKey(.data_in(din), .data_out(a));
 

@@ -1,6 +1,6 @@
 module compute_sbox(
-input [7:0] x,
-output [7:0] y
+input logic [7:0] x,
+output logic [7:0] y
 );
 reg [7:0] SBOX [0:255];
 initial 
@@ -10,8 +10,8 @@ endmodule
 
 
 module compute_inverse_sbox(
-input [7:0] x,
-output [7:0] y
+input logic [7:0] x,
+output logic [7:0] y
 );
 reg [7:0] INVSBOX [0:255];
 initial 

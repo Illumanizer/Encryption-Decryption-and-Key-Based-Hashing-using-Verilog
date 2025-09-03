@@ -4,7 +4,7 @@ module hash(
 );
   localparam logic [7:0] K = 8'h5A;
 
-  wire [7:0] mix;
+  logic [7:0] mix;
 
   round_key hash_round_key(.data_in(enc), .data_out(mix));
 
