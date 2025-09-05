@@ -1,5 +1,9 @@
 `timescale 1ns/1ps
-module tb_verify;
+module tb_verify_pipeline;
+
+  reg clk = 0;
+  reg rst_n = 0;
+  always #5 clk = ~clk;
 
   reg  [7:0] plain;
   reg  [7:0] enc_in;
@@ -10,12 +14,14 @@ module tb_verify;
   wire enc_match;
 
   verify DUT (
-    .plain     (plain),
-    .enc_in    (enc_in),
-    .ref_hash  (ref_hash),
-    .valid_flag(valid_flag),
-    .hash_match(hash_match),
-    .enc_match (enc_match)
+    .clk        (clk),
+    .rst_n      (rst_n),
+    .plain      (plain),
+    .enc_in     (enc_in),
+    .ref_hash   (ref_hash),
+    .valid_flag (valid_flag),
+    .hash_match (hash_match),
+    .enc_match  (enc_match)
   );
 
   integer fail_count = 0;
@@ -25,35 +31,48 @@ module tb_verify;
       enc_in   = enc_given;
       plain    = expected_plain;
       ref_hash = expected_hash;
-      #1;
 
-      assert (valid_flag)
-        else begin
-           $error( "Decryption check FAILED: enc=%02h plain=%02h got=%02h",enc_given, expected_plain,enc_in);
-            fail_count = fail_count + 1;
-        end      
+      // wait an extra edge so combinational outputs see the new inputs,
+      // then wait pipeline cycles: dec sampled into dec_reg at 1st edge,
+      // reenc + flags produced/registered at 2nd edge.
+      @(posedge clk); // allow comb to settle before pipeline registers capture
+      @(posedge clk); // dec -> dec_reg
+      @(posedge clk); // reenc computed and flags registered
 
-      assert (enc_match)
-        else begin
-          $error( "Re-encryption check FAILED: dec->enc != %02h", enc_given);
-          fail_count = fail_count + 1;
-        end
 
-      assert (hash_match)
-        else begin
-           $error( "Hash check FAILED: enc=%02h got=%02h",enc_given, expected_hash);
-           fail_count = fail_count + 1;
-        end
+      $display("\nTest enc=%02h plain=%02h ref_hash=%02h", enc_given, expected_plain, expected_hash);
+      $display("  flags: valid=%0b enc_match=%0b hash_match=%0b", valid_flag, enc_match, hash_match);
 
-       $display("PASS case: enc=%02h plain=%02h hash=%02h got=%02h",
-                enc_given, expected_plain, expected_hash,DUT.h);
+      if (!valid_flag) begin
+         $display("[ERROR] Decryption check FAILED: enc=%02h plain=%02h valid_flag=0", enc_given, expected_plain);
+         fail_count = fail_count + 1;
+      end
 
-      #5;
+      if (!enc_match) begin
+        $display("[ERROR] Re-encryption check FAILED: expected enc=%02h", enc_given);
+        fail_count = fail_count + 1;
+      end
+
+      if (!hash_match) begin
+         $display("[ERROR] Hash check FAILED: enc=%02h expected_hash=%02h", enc_given, expected_hash);
+         fail_count = fail_count + 1;
+      end
+
+      if (valid_flag && enc_match && hash_match)
+      $display("PASS: enc=%02h plain=%02h hash=%02h  (flags: valid=%0b enc_match=%0b hash_match=%0b)",
+               enc_given, expected_plain, expected_hash, valid_flag, enc_match, hash_match);
+
+     @(posedge clk);
     end
   endtask
 
   initial begin
-    // enc_in, expected_plain, expected_hash
+    // assert reset for a few clock cycles
+    rst_n = 0;
+    repeat (4) @(posedge clk);
+    rst_n = 1;
+    @(posedge clk);
+
     check(8'h6C, 8'h00, 8'hD8);
     check(8'h9D, 8'h01, 8'h1C);
     check(8'h62, 8'h41, 8'hE0);
