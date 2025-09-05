@@ -31,6 +31,7 @@ module tb_decrypt_hash;
   endtask
 
   initial begin
+    //input |  expected plain | expected hash
     check(8'h6C, 8'h00, 8'hD8);
     check(8'h9D, 8'h01, 8'h1C);
     check(8'h62, 8'h41, 8'hE0);

@@ -23,7 +23,7 @@ module tb_decrypt;
 
   initial begin
     $display("input -> decrypted");
-    check(8'h6C, 8'h00);
+    check(8'h6C, 8'h00);//input expected decrypted
     check(8'h9D, 8'h01);
     check(8'h62, 8'h41);
     check(8'h65, 8'h7E);

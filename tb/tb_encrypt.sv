@@ -22,7 +22,7 @@ module tb_encrypt;
 
   initial begin
     $display("input -> encrypted");
-    check(8'h00, 8'h6C);
+    check(8'h00, 8'h6C);//input expected encrypted
     check(8'h01, 8'h9D);
     check(8'h41, 8'h62);
     check(8'h7E, 8'h65);
