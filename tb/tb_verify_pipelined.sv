@@ -32,9 +32,6 @@ module tb_verify_pipelined;
       plain    = expected_plain;
       ref_hash = expected_hash;
 
-      // wait an extra edge so combinational outputs see the new inputs,
-      // then wait pipeline cycles: dec sampled into dec_reg at 1st edge,
-      // reenc + flags produced/registered at 2nd edge.
       @(posedge clk); // allow comb to settle before pipeline registers capture
       @(posedge clk); // dec -> dec_reg
       @(posedge clk); // reenc computed and flags registered
@@ -44,17 +41,17 @@ module tb_verify_pipelined;
       $display("  flags: valid=%0b enc_match=%0b hash_match=%0b", valid_flag, enc_match, hash_match);
 
       if (!valid_flag) begin
-         $display("[ERROR] Decryption check FAILED: enc=%02h plain=%02h valid_flag=0", enc_given, expected_plain);
+         $display("[ERROR] Decryption check FAILED: enc=%02h plain=%02h got_plain=%02h", enc_given, expected_plain,DUT.dec_reg);
          fail_count = fail_count + 1;
       end
 
       if (!enc_match) begin
-        $display("[ERROR] Re-encryption check FAILED: expected enc=%02h", enc_given);
+        $display("[ERROR] Re-encryption check FAILED: expected_enc=%02h got_enc=%02h", enc_given,DUT.reenc);
         fail_count = fail_count + 1;
       end
 
       if (!hash_match) begin
-         $display("[ERROR] Hash check FAILED: enc=%02h expected_hash=%02h", enc_given, expected_hash);
+         $display("[ERROR] Hash check FAILED: enc=%02h expected_hash=%02h got_hash=%02h", enc_given, expected_hash, DUT.h);
          fail_count = fail_count + 1;
       end
 
@@ -81,9 +78,9 @@ module tb_verify_pipelined;
     check(8'h3B, 8'hFF, 8'h84);
 
     if(fail_count==0)
-      $display("tb_verify OK");
+      $display("\ntb_verify_pipelined OK\n");
     else
-      $display("tb_verify FAILED count=%0d", fail_count);
+      $display("\n tb_verify_pipelined FAILED count=%0d \n", fail_count);
     $finish;
   end
 endmodule
