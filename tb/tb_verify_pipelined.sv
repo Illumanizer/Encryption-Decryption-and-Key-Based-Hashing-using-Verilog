@@ -37,9 +37,6 @@ module tb_verify_pipelined;
       @(posedge clk); // reenc computed and flags registered
 
 
-      $display("\nTest enc=%02h plain=%02h ref_hash=%02h", enc_given, expected_plain, expected_hash);
-      $display("  flags: valid=%0b enc_match=%0b hash_match=%0b", valid_flag, enc_match, hash_match);
-
       if (!valid_flag) begin
          $display("[ERROR] Decryption check FAILED: enc=%02h plain=%02h got_plain=%02h", enc_given, expected_plain,DUT.dec_reg);
          fail_count = fail_count + 1;
