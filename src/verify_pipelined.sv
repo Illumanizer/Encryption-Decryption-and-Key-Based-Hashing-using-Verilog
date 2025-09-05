@@ -1,12 +1,12 @@
-module verify(
-  input  logic        clk,
-  input  logic        rst_n,
+module verify_pipelined(
+  input  logic clk,
+  input  logic rst_n,
   input  logic [7:0]  plain,
   input  logic [7:0]  enc_in,
   input  logic [7:0]  ref_hash,
-  output logic        enc_match,
-  output logic        hash_match,
-  output logic        valid_flag
+  output logic enc_match,
+  output logic hash_match,
+  output logic valid_flag
 );
 
   logic [7:0] dec;        

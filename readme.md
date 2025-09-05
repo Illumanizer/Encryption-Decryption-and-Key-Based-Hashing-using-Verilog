@@ -185,6 +185,11 @@ iverilog -g2012 -o build/tb_decrypt_hash.vvp src/*.sv tb/tb_decrypt_hash.sv && v
 iverilog -g2012 -o build/tb_verify.vvp src/*.sv tb/tb_verify.sv && vvp build/tb_verify.vvp
 ```
 
+### 🚩 verify_pipelined (valid_flag, enc_match & hash_match)
+```bash
+iverilog -g2012 -o build/tb_verify_pipelined.vvp src/*.sv tb/tb_verify_pipelined.sv && vvp build/tb_verify_pipelined.vvp
+```
+
 ### 🔄 🚩 random verify 
 ```bash
 iverilog -g2012 -o build/tb_verify_rand.vvp src/*.sv tb/tb_verify_rand.sv && vvp build/tb_verify_rand.vvp

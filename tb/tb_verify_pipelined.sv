@@ -1,5 +1,5 @@
 `timescale 1ns/1ps
-module tb_verify_pipeline;
+module tb_verify_pipelined;
 
   reg clk = 0;
   reg rst_n = 0;
@@ -13,7 +13,7 @@ module tb_verify_pipeline;
   wire hash_match;
   wire enc_match;
 
-  verify DUT (
+  verify_pipelined DUT (
     .clk        (clk),
     .rst_n      (rst_n),
     .plain      (plain),
